@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- jQuery minified  -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <title>Home</title>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Logo</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="sass.html">Sass</a></li>
+          <li><a href="badges.html">Components</a></li>
+          <li><a href="collapsible.html">JavaScript</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div>
+      <div class="row">
+        <div class="input-field col s4">
+          <select multiple id="facilities" onchange="get_hotels()">
+            <option value="" selected>Choose your option</option>
+            {% for facility in facilities %}
+            <option value="{{facility.id}}">{{facility.Name}}</option>
+            {% endfor %}
+          </select>
+          <label>Materialize Multiple Select</label>
+        </div>
+        <div class="col s4">
+          <p>Select Price Range</p>
+          <form action="#">
+            <p class="range-field">
+              <input type="range" id="price" min="1000" max="10000" onchange="get_hotels()"/>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row" id="show_hotel_here">
+        <!-- for loop starts here -->
+        {% for hotel in hotels_data %}
+
+        <div
+          class="card"
+          style="width: 200px; display: inline-block; margin: 17px"
+        >
+          <img
+            src="{{hotel.HotelImages.url}}"
+            class="card-img-top"
+            alt="No Image"
+            style="width: 200px"
+          />
+          <div class="card-body">
+            <h5 class="card-title">{{hotel.HotelName}}</h5>
+            <p class="card-text">{{hotel.HotelAddress}}</p>
+            <p class="card-text">Rs. {{hotel.Price}}</p>
+          </div>
+        </div>
+
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      var show_hotel_here = document.getElementById("show_hotel_here");
+      $(document).ready(function () {
+        $("select").formSelect();
+      });
+
+      function get_hotels(){
+
+        var price = document.getElementById('price');
+        console.log(price.value);
+
+        var instance = M.FormSelect.getInstance(document.getElementById('facilities'));
+    
+        var facilities = ''
+        var html = ''
+
+        var hotel_descriptions
+        var facilities = instance.getSelectedValues();
+        // if (instance){
+        //     facilities = instance.getSelectedValues();
+        // }
+        console.log(facilities)
+
+        fetch(`/hotel_api?price=${price.value}&facilities=${facilities}`).then(result => result.json()).then(response =>{
+          for (var i = 0; i<response.length; i++){
+
+
+            html += `
+            <div class="card" style="width: 200px; display: inline-block; margin: 17px">
+            <img src="media/${response[i].hotel_image}/" class="card-img-top" alt="No Image" style="width: 200px"/>
+            <div class="card-body">
+                <h5 class="card-title">${response[i].hotel_name}</h5>
+                <p class="card-text">${response[i].hotel_address}</p>
+                <p class="card-text">Rs. ${response[i].price}</p>
+            </div>
+            </div>
+            `
+          }
+          show_hotel_here.innerHTML= html
+      })
+      }
+
+
+    </script>
+  </body>
+</html>
